@@ -7,7 +7,7 @@ hparams = tf.contrib.training.HParams(
 
     #Synthesize
     synth_input_dir='/mnt/nas/03_ETC/zerospeech/databases',
-    synth_language = 'english',
+    synth_language = 'surprise',
 	wavenet_synth= 'synth_input/',
 	synth_output_dir='synth_out/',
 	synth_spk_id=None,

@@ -48,8 +48,6 @@ Please navigate to your /sonnet/python/modules/nets/vqvae.py installation locati
 ####2.3. Run
 
 ```bash
-python preprocess.py --mode train
-python train.py
 python preprocess.py --mode synth
 python synthesize.py
 ```
