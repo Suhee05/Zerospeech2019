@@ -159,7 +159,7 @@ class WaveNet():
 			self.embed_speakers = Embedding(
 				config.n_speakers, config.gin_channels, std=0.1, name='gc_embedding')
 			self.embedding_table = self.embed_speakers.embedding_table
-			# print("embedding table created : {}".format(self.embedding_table))
+
 		else:
 			self.embed_speakers = None
 
@@ -171,8 +171,8 @@ class WaveNet():
 			# VQVAE Model
 			self.vqencoder = vqvae.VqEncoder(config)
 
-			# Speaker Classifier model 											#spkclassifier
-			self.spkclassifier = spkclassifier.SpeakerClassifier(config)		#spkclassifier
+			# Speaker Classifier model
+			self.spkclassifier = spkclassifier.SpeakerClassifier(config)
 
 			#First convolutional layer for local condition
 			with tf.variable_scope('lc_first_conv'):
@@ -282,8 +282,8 @@ class WaveNet():
 		self.tower_eval_upsampled_local_features = []
 		self.tower_synth_upsampled_local_features = []
 
-		self.tower_spk_hat_train = []	#spkclassifier
-		self.tower_g = []				#spkclassifier
+		self.tower_spk_hat_train = []
+		self.tower_g = []
 
 		log('Initializing Wavenet model.  Dimensions (? = dynamic shape): ')
 		log('  Train mode:                {}'.format(self.is_training))
@@ -302,7 +302,7 @@ class WaveNet():
 						#[batch_size, time_length, 1]
 						self.tower_mask.append(self.get_mask(tower_input_lengths[i], maxlen=tf.shape(tower_x[i])[-1])) #To be used in loss computation
 						#[batch_size, channels, time_length]
-						y_hat_train, spk_hat_train = self.step(tower_x[i], tower_c[i], tower_g[i], softmax=False) #softmax is automatically computed inside softmax_cross_entropy if needed  ##spkclassfier
+						y_hat_train, spk_hat_train = self.step(tower_x[i], tower_c[i], tower_g[i], softmax=False) #softmax is automatically computed inside softmax_cross_entropy if needed
 						print("y_hat_train : {}".format(y_hat_train))
 						print("spk_hat_train : {}".format(spk_hat_train))
 
@@ -316,8 +316,8 @@ class WaveNet():
 						self.tower_input_lengths.append(tower_input_lengths[i])
 
 
-						self.tower_spk_hat_train.append(spk_hat_train)	#spkclassifier
-						self.tower_g.append(tower_g[i])					#spkclassifier
+						self.tower_spk_hat_train.append(spk_hat_train)
+						self.tower_g.append(tower_g[i])
 
 						#Add mean and scale stats if using Guassian distribution output (there would be too many logistics if using MoL)
 						if self._config.out_channels == 2:
@@ -385,7 +385,7 @@ class WaveNet():
 							tower_c[i] = tf.expand_dims(tower_c[i][idx, :, :length], axis=0)
 							with tf.control_dependencies([tf.assert_equal(tf.rank(tower_c[i]), 3)]):
 								tower_c[i] = tf.identity(tower_c[i], name='eval_assert_c_rank_op')
-								# print("tower_c[i] : {}".format(tower_c[i]))
+
 
 						if tower_g[i] is not None:
 							tower_g[i] = tf.expand_dims(tower_g[i][idx], axis=0)
@@ -457,18 +457,7 @@ class WaveNet():
 
 
 							#Overwrite length with respect to local condition features
-							#### Keep synthesis_length
-							#synthesis_length = Tc * upsample_factor
 							synthesis_length = tf.cast(tf.math.ceil(Tc / 4) * 4 * upsample_factor, tf.int32)
-
-							#[batch_size, local_condition_dimension, local_condition_time]
-							#time_length will be corrected using the upsample network
-							#tower_c[i] = tf.transpose(tower_c[i], [0, 2, 1])
-
-						#if tower_g[i] is not None:
-
-							#assert tower_g[i].shape == (batch_size, 1)
-
 
 						#Start silence frame
 						if is_mulaw_quantize(config.input_type):
@@ -520,7 +509,7 @@ class WaveNet():
 		# print("wavenet_train_vars : {}\n{}".format(len(wavenet_train_vars), wavenet_train_vars))
 		encdec_train_vars = list(set(all_train_vars) - set(spk_train_vars))
 
-		if config.post_train_mode == True:       #post #yk: post_train일 경우 variable을 wavenet vars 지정
+		if config.post_train_mode == True:
 			self.variables = wavenet_train_vars
 		elif config.pre_train_mode == True : 	#spkclassfier
 			self.variables = encdec_train_vars
@@ -546,7 +535,7 @@ class WaveNet():
 		all_train_lambda = tf.cond(global_step-tf.convert_to_tensor(self._config.pre_train_steps)-tf.convert_to_tensor(self._config.spk_train_steps) < tf.convert_to_tensor(50000) ,\
 		 lambda: tf.convert_to_tensor(0.0000002, dtype=tf.float32)*(tf.cast(global_step, dtype=tf.float32)-tf.convert_to_tensor(self._config.pre_train_steps, dtype=tf.float32)-tf.convert_to_tensor(self._config.spk_train_steps, dtype=tf.float32)), \
 		 lambda: tf.convert_to_tensor(0.01, dtype=tf.float32))
-		print("all_train_lambda : {}".format(all_train_lambda)) 
+		print("all_train_lambda : {}".format(all_train_lambda))
 
 		for i in range(self._config.wavenet_num_gpus):
 			with tf.device(tf.train.replica_device_setter(ps_tasks=1, ps_device='/cpu:0', worker_device=gpus[i])):
@@ -941,8 +930,6 @@ class WaveNet():
 			self.vq_w = vq_out["wmatrix"]
 			self.vq_enc_ind = vq_out["encoding_indices"]
 
-			# self.vq_embeddings = vq_out["quantize"] #vqvae output shape [batch_size, time_steps, c_channels]
-			# print("self.vq_embeddings : {}".format(self.vq_embeddings))
 			c = tf.transpose(self.vq_embeddings, (0,2,1)) #[batch_size, c_channels, time_steps]
 			# print("c transposed  : {}".format(c))
 
@@ -969,10 +956,6 @@ class WaveNet():
 
 			#[batch_size, channels, time_length]
 			c = tf.squeeze(c, [expand_dim])
-
-			##### Debug / self.c must have shape BTC
-			#with tf.control_dependencies([tf.assert_equal(tf.shape(c)[-1], time_length)]):
-			#	self.c = tf.transpose(c, [0, 2, 1])
 			self.c = tf.transpose(c, [0, 2, 1])
 
 

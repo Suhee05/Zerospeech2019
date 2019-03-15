@@ -17,7 +17,6 @@ def run_synthesis(checkpoint_path, output_dir, hparams):
     embed_dir = os.path.join(output_dir, 'embeddings')
 
 
-    #We suppose user will provide correct folder depending on training method
     log(hparams_debug_string())
     synth = Synthesizer()
     synth.load(checkpoint_path, hparams)

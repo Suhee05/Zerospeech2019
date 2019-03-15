@@ -26,11 +26,11 @@ def write_metadata(metadata, out_dir, mode):
 	with open(os.path.join(out_dir, 'map.txt'), 'w', encoding='utf-8') as f:
 		for m in metadata: # (audio_filename, mfcc_filename, mfcc_filename, speaker_id, time_steps, mfcc_frames)
 			if mode == "synth":
-				wav_name = os.path.basename(m[0]).split('-')[1] # audio-S122_3656689518-0.npy
-				if wav_name in synth_dict.keys(): #S122_3656689518
-					spk_id = synth_dict[wav_name] #V001
+				wav_name = os.path.basename(m[0]).split('-')[1]
+				if wav_name in synth_dict.keys():
+					spk_id = synth_dict[wav_name]
 					m = list(m)
-					m[3] = hparams.speakers.index(spk_id) # wavs to be generated in either two speakers in voice data
+					m[3] = hparams.speakers.index(spk_id)
 					print('audio file {} is in synthesis.txt. so speaker id was converted'.format(wav_name))
 
 			f.write('|'.join([str(x) for x in m]) + '\n')
@@ -54,7 +54,7 @@ def load_synthesis_dict():
 		wav_name, wav_spk = wav_line.split(' ')
 		if hparams.synth_language == "english":
 			wav_name = wav_name.split("/")[-1]
-		synth_dict[wav_name] = wav_spk # wav_name (ex) test/S079_... in eng, S378... in surprise
+		synth_dict[wav_name] = wav_spk
 	return synth_dict
 
 
@@ -62,7 +62,7 @@ def run_preprocess(args, hparams):
 
 	if args.mode == "train":
 		preprocess(args, hparams.train_input_dir, hparams.wavenet_input, hparams)
-	elif args.mode == "post_train":   #yk: post_train 일 경우 옵션 추가 (처리방식은 train 과 동일하고 input_dir 만 post_train_input_dir로 교체 )
+	elif args.mode == "post_train":
 		preprocess(args, hparams.post_train_input_dir, hparams.post_train_input, hparams)
 	elif args.mode == "synth":
 		preprocess(args, os.path.join(hparams.synth_input_dir, hparams.synth_language, 'test'), hparams.wavenet_synth, hparams)
@@ -72,7 +72,7 @@ def run_preprocess(args, hparams):
 def main():
 	print('initśalizing preprocessing..')
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--mode', default='train', required=True) #[train, post_train,synth]
+	parser.add_argument('--mode', default='train', required=True)
 	parser.add_argument('--n_jobs', type=int, default=cpu_count())
 
 	args = parser.parse_args()

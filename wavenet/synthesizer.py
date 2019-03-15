@@ -51,8 +51,6 @@ class Synthesizer:
 			assert len(hparams.wavenet_debug_mels) == len(hparams.wavenet_debug_wavs)
 			mel_spectrograms = [np.load(mel_file) for mel_file in hparams.wavenet_debug_mels]
 
-		#Get True length of audio to be synthesized: audio_len = mel_len * hop_size
-		#audio_lengths = [ int(len(x) * get_hop_size(self._hparams)) for x in mel_spectrograms]
 
 		#Prepare local condition batch
 		maxlen = max([len(x) for x in mel_spectrograms])
@@ -62,7 +60,7 @@ class Synthesizer:
 		if self._hparams.clip_for_wavenet:
 			mel_spectrograms = [np.clip(x, T2_output_range[0], T2_output_range[1]) for x in mel_spectrograms]
 
-		#c_batch = np.stack([_pad_inputs(x, maxlen, _pad=T2_output_range[0]) for x in mel_spectrograms]).astype(np.float32)
+
 		c_batch = np.asarray(mel_spectrograms).astype(np.float32)
 		print("c batch shape {}".format(c_batch.shape))
 		if self._hparams.normalize_for_wavenet:
@@ -92,22 +90,17 @@ class Synthesizer:
 
 			assert len(test_wavs) == len(debug_wavs)
 			#### GTA False
-			#feed_dict[self.targets] = test_wavs.reshape(len(test_wavs), max_test_len, 1)
 			feed_dict[self.input_lengths] = np.asarray([test_wavs.shape[1]])
 
         if embed_only == False:
 
             #Generate wavs and clip extra padding to select Real speech parts
             #### VQVAE Out
-            # generated_wavs, upsampled_features, vq_embeddings, vq_onehot,vq_enc_ind = self.session.run([self.model.tower_y_hat, self.model.tower_synth_upsampled_local_features, self.model.vq_embeddings, self.model.vq_onehot,self.model.vq_enc_ind], feed_dict=feed_dict)
             generated_wavs, upsampled_features, vq_embeddings, vq_onehot,vq_w,vq_enc_ind = self.session.run([self.model.tower_y_hat, self.model.tower_synth_upsampled_local_features, self.model.vq_embeddings, self.model.vq_onehot,self.model.vq_w,self.model.vq_enc_ind], feed_dict=feed_dict)
 
             #Linearize outputs (n_gpus -> 1D)
             generated_wavs = [wav for gpu_wavs in generated_wavs for wav in gpu_wavs]
             upsampled_features = [feat for gpu_feats in upsampled_features for feat in gpu_feats]
-
-            #generated_wavs = [generated_wav[:length] for generated_wav, length in zip(generated_wavs, audio_lengths)]
-            #upsampled_features = [upsampled_feature[:, :length] for upsampled_feature, length in zip(upsampled_features, audio_lengths)]
 
 
             for i, (generated_wav, input_mel, upsampled_feature, vq_embedding) in enumerate(zip(generated_wavs, mel_spectrograms, upsampled_features, vq_embeddings)):
@@ -147,10 +140,9 @@ class Synthesizer:
         else:
             #Generate wavs and clip extra padding to select Real speech parts
             #### VQVAE Out
-            # vq_embeddings,vq_onehot,vq_enc_ind = self.session.run([self.model.vq_embeddings,self.model.vq_onehot,self.model.vq_enc_ind], feed_dict=feed_dict)
+
             vq_embeddings,vq_onehot,vq_w,vq_enc_ind = self.session.run([self.model.vq_embeddings,self.model.vq_onehot,self.model.vq_w,self.model.vq_enc_ind], feed_dict=feed_dict)
-            # print("this is the three embedding output".format(vq_embeddings,vq_onehot,vq_enc_ind))
-            # print("this is the three embedding output shapes".format(vq_embeddings.shape,vq_onehot.shape,vq_enc_ind.shape))
+
             for i, vq_embedding in enumerate(vq_embeddings):
 
                 #### Vq embedding save (shape [batch_size, num_frames, embed_dim])
@@ -195,7 +187,7 @@ def create_shadow_saver(model, global_step=None):
 		shadow_variables += ['global_step']
 		variables += [global_step]
 
-	shadow_dict = dict(zip(shadow_variables, variables)) #dict(zip(keys, values)) -> {key1: value1, key2: value2, ...}
+	shadow_dict = dict(zip(shadow_variables, variables))
 	return tf.train.Saver(shadow_dict, max_to_keep=20)
 
 

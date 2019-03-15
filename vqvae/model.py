@@ -14,16 +14,6 @@ from six.moves import cPickle
 from six.moves import urllib
 from six.moves import xrange
 
-# YSC (youngsunhere@gmail.com)
-
-"""
-[Implementation of the paper]
-Chorowski, J., Weiss, R. J., Bengio, S., & Oord, A. van den. (2019) (https://arxiv.org/pdf/1901.08810.pdf)
-
-[References]
-1. Oord, A. van den, Vinyals, O., & Kavukcuoglu, K. (2017) (http://arxiv.org/abs/1711.00937)
-2. https://github.com/deepmind/sonnet/blob/master/sonnet/examples/vqvae_example.ipynb
-"""
 
 class VqEncoder(snt.AbstractModule):
 

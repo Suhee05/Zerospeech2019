@@ -4,11 +4,6 @@ import sonnet as snt
 import tensorflow as tf
 
 
-"""
-[References]
-1. Chou et al., Multi-target Voice Conversion without Parallel Data by Adversarially Learning Disentangled Audio Representations. (2018) (arXiv:1804.02812 [eess.AS])
-2. https://github.com/jjery2243542/voice_conversion
-"""
 
 class SpeakerClassifier(snt.AbstractModule):
 
@@ -22,7 +17,7 @@ class SpeakerClassifier(snt.AbstractModule):
         self.dp = configs.clf_drop_out
         self.ns = configs.clf_lrelu_negative_slope
         self.name = "speaker_classifier"
-        self.logger = log()        
+        self.logger = log()
 
     def __call__(self, input_placeholder):
         """Call Class. Initialize with Placeholders and Return Output Graph
@@ -65,7 +60,7 @@ class SpeakerClassifier(snt.AbstractModule):
     def conv_layer(self, h, num_units, kernel_size, stride, name, padding=snt.SAME):
         h_i = snt.Conv1D(
         output_channels = num_units,
-        kernel_shape = kernel_size, 
+        kernel_shape = kernel_size,
         stride = stride,
         padding = padding,
         data_format='NCW',
@@ -78,9 +73,9 @@ class SpeakerClassifier(snt.AbstractModule):
         # convolution
         out = self.conv_layer(
             out,
-            self.config.vqvae_embedding_dim, 
-            kernel_size=5, 
-            stride=1, 
+            self.config.vqvae_embedding_dim,
+            kernel_size=5,
+            stride=1,
             name="clf_layer{}".format(block_id))
         ## leaky RELU
         out = tf.nn.leaky_relu(out, alpha=self.ns, name="clf_lrelu{}".format(block_id))
@@ -89,16 +84,16 @@ class SpeakerClassifier(snt.AbstractModule):
         ## convolution
         out = self.conv_layer(
             out,
-            self.config.vqvae_embedding_dim, 
-            kernel_size=5, 
-            stride=1, 
+            self.config.vqvae_embedding_dim,
+            kernel_size=5,
+            stride=1,
             name="clf_layer{}".format(block_id+1))
         ## leaky RELU
         out = tf.nn.leaky_relu(out, alpha=self.ns, name="clf_lrelu{}".format(block_id+1))
         ## instance normalization
         out = tf.contrib.layers.instance_norm(out, data_format='NCHW')
         ## dropout
-        out = tf.layers.dropout(out, rate=self.dp, name="clf_dropout{}".format(block_id))  
+        out = tf.layers.dropout(out, rate=self.dp, name="clf_dropout{}".format(block_id))
         # print("out : {}".format(out))
         if res:
             out = out + x
@@ -113,16 +108,16 @@ class SpeakerClassifier(snt.AbstractModule):
                 pad = tf.constant([kernel_size//2, kernel_size//2 - 1])
             else:
                 pad = tf.constant([[0,0], [0,0], [kernel_size//2, kernel_size//2]])   # BCT (pad on time dimension)
-            
+
         else:
             if kernel_size % 2 == 0:
                 pad = tf.constant([[kernel_size//2, kernel_size//2 - 1], [kernel_size//2, kernel_size//2 - 1]])
             else:
                 pad = tf.constant([[kernel_size//2, kernel_size//2], [kernel_size//2, kernel_size//2]])
-        
+
         # print("pad : {}".format(pad))
         # padding
-        inp_padded = tf.pad(inp, 
+        inp_padded = tf.pad(inp,
                 pad,
                 mode='REFLECT')
 
@@ -133,10 +128,10 @@ class SpeakerClassifier(snt.AbstractModule):
     def softmax_layer(self, x):
         out = self.conv_layer(
             x,
-            self.config.n_speakers, 
-            kernel_size=40, 
-            stride=1, 
+            self.config.n_speakers,
+            kernel_size=40,
+            stride=1,
             name="softmax_layer",
             padding=snt.VALID)
         return out
- 
+

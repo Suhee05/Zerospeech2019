@@ -85,17 +85,15 @@ def create_shadow_saver(model, global_step=None):
     Can also use: shadow_dict = model.ema.variables_to_restore()
     '''
     #Add global step to saved variables to save checkpoints correctly
-    # shadow_variables = [model.ema.average_name(v) for v in model.variables]
-    # variables = model.variables
+
     shadow_variables = [model.ema.average_name(v) for v in model.all_train_vars]
     variables = model.all_train_vars
-    # print(shadow_variables)
 
     if global_step is not None:
         shadow_variables += ['global_step']
         variables += [global_step]
 
-    shadow_dict = dict(zip(shadow_variables, variables)) #dict(zip(keys, values)) -> {key1: value1, key2: value2, ...}
+    shadow_dict = dict(zip(shadow_variables, variables))
     return tf.train.Saver(shadow_dict, max_to_keep=20)
 
 def load_averaged_model(sess, sh_saver, checkpoint_path):
@@ -122,10 +120,6 @@ def eval_step(sess, global_step, model, plot_dir, wav_dir, summary_writer, confi
     plot_path = os.path.join(plot_dir, 'step-{}-waveplot.png'.format(global_step))
     mfcc_path = os.path.join(plot_dir, 'step-{}-reconstruction-mfcc.png'.format(global_step))
     upsampled_path = os.path.join(plot_dir, 'step-{}-upsampled-features.png'.format(global_step))
-
-
-    #Save Embeddings
-    #vq_embeddings_path = os.path.join(embed_dir, 'step-{}-vq-embeddings.npy'.format(global_step))
 
 
     #Save figure
@@ -194,7 +188,7 @@ def model_train_mode(feeder, config, global_step, init=False):
         #initialize model to train mode
         model.initialize(feeder.targets, feeder.local_condition_features, feeder.global_condition_features,
             feeder.input_lengths, x=feeder.inputs)
-        model.add_loss(global_step)  
+        model.add_loss(global_step)
         model.add_optimizer(global_step, config.post_train_mode, config.pre_train_mode, config.spk_train_mode) #spkclassifier
         stats = add_train_stats(model, config)
         return model, stats
@@ -354,7 +348,7 @@ def main():
                 message = 'Step {:7d} [{:.3f} sec/step, loss={:.5f}, avg_loss={:.5f}, vq_loss={:.5f}, vq_perplexity={:.5f}, reconst_loss={:.5f}, spk_loss={:.5f}]'.format(
                     step, time_window.average, loss, loss_window.average, vq_loss, vq_perplexity, reconst_loss, spk_loss)
                 log.info(message)
-                
+
 
                 if np.isnan(loss) or loss > 10000:
 

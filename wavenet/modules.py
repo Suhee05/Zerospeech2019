@@ -533,10 +533,6 @@ class NearestNeighborUpsample:
 			size=[inputs.shape[1] * self.resize_strides[0], tf.shape(inputs)[2] * self.resize_strides[1]],
 			method=1) #BILINEAR = 0, NEAREST_NEIGHBOR = 1, BICUBIC = 2, AREA = 3
 
-		## 임시방편 UNIT SEARCH
-		# inputs_shape = inputs.get_shape().as_list()
-		# print("inputs_shape :{}".format(inputs_shape))
-		# outputs = tf.slice(outputs, [0,0,0,0], [inputs_shape[0],inputs_shape[1],inputs_shape[2]-self.resize_strides[1]/2,inputs_shape[3]])
 		return outputs
 
 
