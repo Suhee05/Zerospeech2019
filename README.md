@@ -42,8 +42,9 @@ Please navigate to your /sonnet/python/modules/nets/vqvae.py installation locati
 
 | line number | source                                                       | revised                                                      |
 | ----------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 98          | quantized = self.quantize(encoding_indices)                  | quantized,w = self.quantize(encoding_indices),quantized_frozen = quantized |
-| 111         | return {'quantize': quantized,,'loss': loss,,'perplexity': perplexity,,'encodings': encodings,,'encoding_indices': encoding_indices,,'wmatrix':w,} | return {'quantize': quantized,,'quantize_frozen':quantized_frozen,,'loss': loss,,'perplexity': perplexity,,'encodings': encodings,,'encoding_indices': encoding_indices,,'wmatrix':w,} |
+| 98          | quantized = self.quantize(encoding_indices)                  | quantized, w = self.quantize(encoding_indices) </br> quantized_frozen = quantized |
+| 111         | return {'quantize': quantized, 'loss': loss, 'perplexity': perplexity, 'encodings': encodings, 'encoding_indices': encoding_indices,} | return {'quantize': quantized, 'quantize_frozen':quantized_frozen, 'loss': loss, 'perplexity': perplexity, 'encodings': encodings, 'encoding_indices': encoding_indices, 'wmatrix':w,} |
+| 121         | return tf.nn.embedding_lookup(w, encoding_indices, validate_indices=False) | return tf.nn.embedding_lookup(w, encoding_indices, validate_indices=False), w|
 
 ####2.3. Run
 
