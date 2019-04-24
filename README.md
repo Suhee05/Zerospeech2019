@@ -1,10 +1,17 @@
-# How to Run
+# VQVAE with Speaker Adversarial Training
 
-### 1. Colab
+Zerospeech 2019 Submission </br>
+Suhee Cho @Suhee05, Yeonjung Hong, Yookyung Shin @abi22yk, Youngsun Cho @yscatwork
 
-Synthesis-ready Google Colab is uploaded here: https://colab.research.google.com/drive/1XNu8UltMOyW3_FPTizPgeb4UQW0Dad5J?authuser=1#scrollTo=GSj9SBSkONI2
 
-Please be reminded that the CPU specs of Google Colab do not allow faster processing. 
+## How to run 
+
+### 1. Pretrained Model 
+
+The model used for submission and its checkpoints were uploaded on Google Drive. Since the codes in this repository have critical issues, please refer to the link. A model with speaker adversarial training and multi-gpu option will be uploaded on this repository as soon as our work on multi-gpu option finish.
+
+https://drive.google.com/drive/folders/1OQp4hug0PAZeGWlD155fIx34N5D6QTYw?usp=sharing
+
 
 #### 1.1 Installation
 
