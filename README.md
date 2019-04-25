@@ -2,13 +2,13 @@
 
 Zerospeech 2019 Submission </br>
 Suhee Cho [@Suhee05](https://github.com/Suhee05), Yeonjung Hong [@YeonjungHong](https://github.com/YeonjungHong), Yookyung Shin [@abi22yk](https://github.com/abi22yk), Youngsun Cho [@yscatwork](https://github.com/yscatwork)
-
+* Alphabetical order
 
 ## How to run
 
 ### 1. Pretrained Model
 
-The model used for submission and its checkpoints were uploaded on Google Drive. Since the codes in this repository have critical issues, please refer to the link. A model with speaker adversarial training and multi-gpu option will be uploaded on this repository as soon as our work on multi-gpu option finish.
+The model used for submission and its checkpoints were uploaded on Google Drive. Since the codes in this repository have critical issues, please refer to the link below. A model with speaker adversarial training and multi-gpu option will be uploaded on this repository as soon as our work on multi-gpu option finish.
 
 https://drive.google.com/drive/folders/1OQp4hug0PAZeGWlD155fIx34N5D6QTYw?usp=sharing
 
